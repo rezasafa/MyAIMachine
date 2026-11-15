@@ -1,0 +1,68 @@
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>هم‌صحبت · دستیار یادگیرنده</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@Html.AntiForgeryToken()
+<div class="app">
+    <aside id="sidebar" aria-label="تاریخچه گفتگو">
+        <a class="brand" href="/">✳ <span>هم‌صحبت<small>فضایی برای یاد گرفتن</small></span></a>
+        <button id="new-chat" class="new-chat">＋ <span>گفتگوی جدید</span><kbd>جدید</kbd></button>
+        <div class="side-label">گفتگوهای شما</div>
+        <nav id="history" aria-label="گفتگوها"></nav>
+        <div class="side-bottom">
+            <button id="open-training">▧ <span>آموزش و تنظیمات مدل</span></button>
+            <div class="profile"><span class="avatar">ش</span><div>فضای شخصی شما<small>دستیار محلی · ML.NET</small></div><span class="online"></span></div>
+        </div>
+    </aside>
+    <main>
+        <header><div><button id="toggle-sidebar" class="icon-button" aria-label="باز و بسته کردن تاریخچه">☰</button><strong>هم‌صحبت</strong><span class="model-badge">مدل یادگیرنده</span></div><span class="local-label"><i></i> داده‌های شما، روی سرور شما</span></header>
+        <section id="chat-view" class="chat-view">
+            <div id="welcome" class="welcome"><div class="spark">✳</div><p class="eyebrow">از یک سلام شروع کنیم</p><h1>امروز چه چیزی یاد بگیریم؟</h1><p>با من گفتگو کنید، پاسخ‌های تازه یادم بدهید<br />و قدم‌به‌قدم دستیار خودتان را بسازید.</p>
+                <div class="suggestions"><button data-prompt="سلام"><span>☀</span><strong>یک شروع ساده</strong><small>سلام! آماده‌ای گفتگو کنیم؟</small></button><button data-prompt="چه کارهایی می‌توانی انجام دهی؟"><span>✧</span><strong>آشنایی با دستیار</strong><small>چه چیزهایی یاد گرفته‌ای؟</small></button><button id="teach-start"><span>▧</span><strong>یاد دادن یک پاسخ</strong><small>اولین نمونه را با هم بسازیم</small></button></div>
+                <div class="welcome-note">از صفر شروع می‌کنم؛ دانش من از نمونه‌هایی است که آموزش می‌دهید.</div>
+            </div>
+            <div id="messages" class="messages" aria-live="polite" aria-label="پیام‌های گفتگو"></div>
+        </section>
+        <div class="composer-area"><div id="status" role="status"></div><form id="chat-form" class="composer"><textarea id="message" rows="1" maxlength="4000" placeholder="پیام خود را بنویسید…" aria-label="متن پیام" required></textarea><div class="composer-bottom"><span>↵ ارسال <span class="muted">· Shift + Enter خط جدید</span></span><button id="send" type="submit" aria-label="ارسال پیام">↑</button></div></form><p class="disclaimer">پاسخ‌ها از نمونه‌های آموزشی انتخاب می‌شوند و ممکن است دقیق نباشند.</p></div>
+    </main>
+</div>
+<dialog id="training-dialog" aria-labelledby="training-title">
+    <div class="dialog-header"><div><small>دانش دستیار را بسازید</small><h2 id="training-title">آموزش و تنظیمات</h2></div><button id="close-training" class="icon-button" aria-label="بستن">×</button></div>
+    <div class="admin-login"><label for="admin-key">کلید مدیریت</label><div class="inline"><input id="admin-key" type="password" autocomplete="off" placeholder="کلید تعریف‌شده در سرور" /><button id="load-training">ورود</button></div></div>
+    <p id="training-status" role="status"></p>
+    <div id="training-content" hidden>
+        <div id="model-summary" class="summary"></div>
+        <p class="help">هر نمونه یک متن و پاسخ مطلوب است. پس از افزودن یا حذف نمونه، «بازآموزی مدل» را بزنید. متن طولانی را به پرسش و پاسخ‌های مشخص تقسیم کنید.</p>
+        <form id="teach-form"><label for="teach-input">وقتی کاربر می‌گوید</label><textarea id="teach-input" maxlength="4000" placeholder="مثلاً: سلام" required></textarea><label for="teach-response">دستیار پاسخ بدهد</label><textarea id="teach-response" maxlength="8000" placeholder="مثلاً: سلام! خوش آمدید. چطور می‌توانم کمک کنم؟" required></textarea><div class="inline"><button id="save-example" type="submit" class="primary">ذخیره نمونه</button><button id="cancel-edit" type="button" hidden>لغو ویرایش</button></div></form>
+        <button id="train-model" class="train-button">✳ بازآموزی مدل با تمام نمونه‌ها</button>
+        <section class="training-section">
+            <h3>مدیریت نمونه‌ها</h3>
+            <form id="search-form" class="inline"><input id="example-search" type="search" maxlength="4000" aria-label="جست‌وجو در نمونه‌ها" placeholder="جست‌وجو در پرسش‌ها و پاسخ‌ها" /><button type="submit">جست‌وجو</button></form>
+            <div id="examples"></div>
+            <div class="pagination"><button id="previous-page">قبلی</button><span id="page-summary"></span><button id="next-page">بعدی</button></div>
+        </section>
+        <section class="training-section">
+            <h3>ورود و خروج اطلاعات</h3>
+            <p class="help">فایل JSON شامل فهرستی از پرسش و پاسخ‌ها؛ حداکثر ۵۰۰ نمونه و ۹ مگابایت در هر بار. نمونه‌ها به اطلاعات قبلی اضافه می‌شوند. برای پرسش‌های تکراری، آخرین نمونه در آموزش استفاده می‌شود.</p>
+            <pre dir="ltr">[{"input":"سلام","response":"سلام! خوش آمدید."}]</pre>
+            <label for="import-file">فایل نمونه‌های آموزشی</label><input id="import-file" type="file" accept=".json,application/json" />
+            <div class="inline"><button id="import-examples">وارد کردن فایل</button><button id="export-examples">دریافت همه نمونه‌ها</button></div>
+        </section>
+        <form id="preview-form" class="training-section">
+            <h3>آزمایش یادگیری</h3><p class="help">پاسخ مدل فعال را بدون ثبت گفتگو بررسی کنید. تغییرات نمونه‌ها پس از بازآموزی اعمال می‌شوند.</p>
+            <label for="preview-input">پرسش آزمایشی</label><textarea id="preview-input" maxlength="4000" required></textarea><button type="submit">آزمایش پاسخ</button>
+            <div id="preview-result" class="summary" role="status" hidden></div>
+        </form>
+        <form id="settings-form"><h3>تنظیم پاسخ‌دهی</h3><label for="threshold">حداقل شباهت (۰٫۰۵ تا ۱؛ احتمال صحت نیست)</label><input id="threshold" type="number" min="0.05" max="1" step="0.05" required /><label for="fallback">پاسخ به متن ناشناخته</label><textarea id="fallback" maxlength="2000" required></textarea><button type="submit">ذخیره تنظیمات</button></form>
+        <details><summary id="load-logs">لاگ‌های اخیر</summary><pre id="logs"></pre></details>
+    </div>
+</dialog>
+<script src="~/js/chat.js" asp-append-version="true" defer></script>
+</body>
+</html>
